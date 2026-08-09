@@ -49,6 +49,25 @@ server.delete("/notes/:id", async (req, res) => {
   });
 });
 
+server.put("/notes/:id", async (req, res) => {
+  const note = await Note.findOneAndUpdate({ _id: req.params.id }, req.body, {
+    returnDocument: "after",
+    runValidators: true,
+  });
+
+  if (!note) {
+    return res.status(404).json({
+      success: false,
+      message: "Note not found",
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    note,
+  });
+});
+
 server.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });
