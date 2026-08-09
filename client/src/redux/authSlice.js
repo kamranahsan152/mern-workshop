@@ -78,7 +78,7 @@ const authSlice = createSlice({
         return;
       }
       // const
-      state.user = { email, password };
+      state.user = { email, password, name: found.name };
       state.error = null;
       localStorage.setItem(
         "user",

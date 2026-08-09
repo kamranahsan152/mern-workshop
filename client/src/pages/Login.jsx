@@ -50,9 +50,6 @@ export default function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        {user?.email ? (
-          <p style={{ color: "green" }}>Logged in as {user.email}</p>
-        ) : null}
         {error && <p style={{ color: "red" }}>{error}</p>}
         <button
           style={{
