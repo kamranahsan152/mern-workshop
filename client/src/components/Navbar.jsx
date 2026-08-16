@@ -1,15 +1,14 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-// import { logout } from "../redux/authSlice";
+import { logoutUser } from "../redux/feature/authService";
 
 export default function Navbar() {
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useSelector((s) => s.auth);
 
-  // Server first, then state. Clearing Redux alone is NOT logout.
   const handleLogout = async () => {
-    // await dispatch(logout());
+    await dispatch(logoutUser());
     navigate("/login");
   };
 

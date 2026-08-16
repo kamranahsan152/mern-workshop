@@ -32,7 +32,7 @@ export const fetchMe = createAsyncThunk(
       const { data } = await api.get("/details");
       return data.user;
     } catch (err) {
-      return rejectWithValue(err); // simply not logged in
+      return rejectWithValue(err.response?.data?.msg ?? "Not logged in");
     }
   },
 );

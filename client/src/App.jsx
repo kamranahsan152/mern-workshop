@@ -9,8 +9,15 @@ import AdminPanel from "./pages/AdminPanel";
 import Forbidden from "./pages/Forbidden";
 import LoginForm from "./pages/LoginForm";
 import RegisterForm from "./pages/RegisterForm";
+import { useDispatch } from "react-redux";
+import { fetchMe } from "./redux/feature/authService";
+import { useEffect } from "react";
 
 export default function App() {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(fetchMe());
+  }, [dispatch]);
   return (
     <>
       <Navbar />

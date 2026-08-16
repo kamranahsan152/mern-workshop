@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addNote, deleteNote, fetchNotes } from "../redux/noteSlice";
+import { addNote, deleteNote, fetchNotes } from "../redux/feature/noteService";
 
 export default function Dashboard() {
   const dispatch = useDispatch();
   const user = useSelector((s) => s.auth.user);
-  const { items, loading, error } = useSelector((s) => s.notes);
+  const { notes: items, isLoading: loading, error } = useSelector(
+    (s) => s.notes,
+  );
 
   const [form, setForm] = useState({ title: "", body: "" });
 

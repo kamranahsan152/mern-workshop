@@ -1,14 +1,20 @@
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUsers } from "../redux/feature/adminService";
+
 export default function AdminPanel() {
+  const dispatch = useDispatch();
+  const { users, error } = useSelector((s) => s.admin);
+
+  useEffect(() => {
+    dispatch(fetchUsers());
+  }, [dispatch]);
+
   return (
     <div className="card">
       <h1>All users</h1>
-      <p className="muted">
-        This page is guarded twice: <code>RoleRoute</code> in the UI and
-        <code> requireRole("admin")</code> on the server. Only the second one
-        actually protects anything.
-      </p>
 
-      {/* {error && <p className="error">{error}</p>} */}
+      {error && <p className="error">{error}</p>}
 
       <table className="table">
         <thead>
@@ -19,13 +25,13 @@ export default function AdminPanel() {
           </tr>
         </thead>
         <tbody>
-          {/* {users.map((u) => (
+          {users.map((u) => (
             <tr key={u._id}>
               <td>{u.name}</td>
               <td>{u.email}</td>
               <td>{u.role}</td>
             </tr>
-          ))} */}
+          ))}
         </tbody>
       </table>
     </div>
