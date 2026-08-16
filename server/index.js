@@ -7,6 +7,7 @@ const { connectDB } = require("./config/db");
 const Note = require("./models/Note");
 const { auth } = require("./routes/user");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 server.use(express.json()); // Middleware to parse JSON request bodies
 server.use(cookieParser()); // fills req.cookies
