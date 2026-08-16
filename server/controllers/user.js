@@ -1,3 +1,7 @@
+const User = require("../models/User");
+const bcrypt = require("bcryptjs");
+const { signToken, cookieOptions, publicUser } = require("../utils/helper");
+
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -14,18 +18,30 @@ const register = async (req, res) => {
     res
       .cookie("token", signToken(user), cookieOptions)
       .status(201)
-      .json({ user: publicUser(user) });
+      .json({
+        success: true,
+        user: publicUser(user),
+      });
   } catch (err) {
-    res.status(500).json({ msg: err.message });
+    res.status(500).json({ success: false, msg: err.message });
   }
 };
 
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email }).select("+password");
-    const ok = user && (await bcrypt.compare(password, user.password));
-    if (!ok) return res.status(400).json({ msg: "Invalid credentials" });
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User is not registered, please register yourself",
+      });
+    }
+    const campare = await bcrypt.campare(password, user.password);
+
+    if (!campare) {
+      return res.status(400).json({ msg: "Invalid credentials" });
+    }
 
     res
       .cookie("token", signToken(user), cookieOptions)
@@ -34,4 +50,9 @@ const login = async (req, res) => {
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
+};
+
+module.exports = {
+  login,
+  register,
 };
