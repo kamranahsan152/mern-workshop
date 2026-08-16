@@ -52,7 +52,21 @@ const login = async (req, res) => {
   }
 };
 
+const details = async (req, res) => {
+  //req.user {id, role}
+  const user = await User.findById(req.user.id);
+  if (!user) return res.status(401).json({ msg: "No user" });
+  res.json({ success: true, user: publicUser(user) });
+};
+
+const logout = async (req, res) => {
+  res.clearCookie("token", cookieOptions);
+  res.json({ success: true, message: "Logged out" });
+};
+
 module.exports = {
   login,
   register,
+  details,
+  logout,
 };
