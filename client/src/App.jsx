@@ -1,59 +1,37 @@
-import { Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Home from "./pages/Home";
-import Notes from "./pages/Notes";
-import { Workshop } from "./pages/Workshop";
-import NoteDetail from "./pages/NoteDetail";
-import Login from "./pages/Login";
-import ProtectedRoute from "./components/ProtectedRoute";
-// import NoteDetail from "./pages/NoteDetail";
-// import AddNote from "./pages/AddNote";
-// import NotFound from "./pages/NotFound";
+import { Routes, Route, Navigate } from "react-router-dom";
 
-function App() {
+import Navbar from "./components/Navbar";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import RoleRoute from "./routes/RoleRoute";
+
+import Dashboard from "./pages/Dashboard";
+import AdminPanel from "./pages/AdminPanel";
+import Forbidden from "./pages/Forbidden";
+import LoginForm from "./pages/LoginForm";
+import RegisterForm from "./pages/RegisterForm";
+
+export default function App() {
   return (
-    <div className="app">
-      {/* outside Routes = on every page */}
+    <>
       <Navbar />
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        {/* /notes, /dashboard */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/notes"
-          element={
-            <ProtectedRoute>
-              <Notes />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/workshop"
-          element={
-            <ProtectedRoute>
-              <Workshop />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/notes/:id"
-          element={
-            <ProtectedRoute>
-              <NoteDetail />
-            </ProtectedRoute>
-          }
-        />
-        {/* <Route path="/add" element={<AddNote />} /> */}
-        {/* <Route path="*" element={<NotFound />} /> */}
-      </Routes>
-    </div>
+      <main className="container">
+        <Routes>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/register" element={<RegisterForm />} />
+          <Route path="/forbidden" element={<Forbidden />} />
+
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+          </Route>
+
+          <Route element={<RoleRoute allow={["admin"]} />}>
+            <Route path="/admin" element={<AdminPanel />} />
+          </Route>
+
+          <Route path="*" element={<p>Page not found.</p>} />
+        </Routes>
+      </main>
+    </>
   );
 }
-export default App;

@@ -1,51 +1,42 @@
-import { useDispatch, useSelector } from "react-redux";
-import { NavLink } from "react-router-dom";
-import { logout } from "../redux/authSlice";
-function Navbar() {
-  // NavLink gives you isActive for free
-  const style = ({ isActive }) => ({
-    color: isActive ? "red" : "#94a3b8",
-    marginRight: "16px",
-  });
-  const user = useSelector((s) => s.auth.user);
-  const dispatch = useDispatch();
+import { useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+// import { logout } from "../redux/authSlice";
+
+export default function Navbar() {
+  // const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useSelector((s) => s.auth);
+
+  // Server first, then state. Clearing Redux alone is NOT logout.
+  const handleLogout = async () => {
+    // await dispatch(logout());
+    navigate("/login");
+  };
 
   return (
-    <nav>
-      {user?.email ? (
-        <div
-          style={{
-            display: "flex",
-            gap: "12px",
-            paddingLeft: "12px",
-            padding: "12px",
-            border: "1px solid #eee",
-          }}
-        >
-          <NavLink to="/notes" style={style}>
-            Notes
-          </NavLink>
-          <NavLink to="/" style={style}>
-            Home
-          </NavLink>
-          <NavLink to="/workshop" style={style}>
-            WorkShop
-          </NavLink>
-          <div>
-            <span
-              style={{
-                paddingRight: "12px",
-                paddingLeft: "12px",
-              }}
-            >
-              Hi, {user?.name}
+    <nav className="nav">
+      <Link to="/dashboard" className="brand">
+        Auth
+      </Link>
+
+      <div className="nav-right">
+        {isAuthenticated ? (
+          <>
+            <span className="who">
+              {user?.name} <em>({user?.role})</em>
             </span>
-            <button onClick={() => dispatch(logout())}>Logout</button>
-          </div>
-        </div>
-      ) : null}
+            {user?.role === "admin" && <Link to="/admin">Admin</Link>}
+            <button className="ghost" onClick={handleLogout}>
+              Log out
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to="/login">Log in</Link>
+            <Link to="/register">Register</Link>
+          </>
+        )}
+      </div>
     </nav>
   );
 }
-
-export default Navbar;

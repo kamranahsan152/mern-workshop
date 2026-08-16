@@ -1,35 +1,3 @@
-// import { createSlice } from "@reduxjs/toolkit";
-
-// const USERS = [                       // demo users, no backend yet
-//   { email: "student@uog.edu", password: "12345", name: "Ali" },
-// ];
-
-// const saved = JSON.parse(localStorage.getItem("user")) || null;
-
-// const authSlice = createSlice({
-//   name: "auth",
-//   initialState: { user: saved, error: null },
-//   reducers: {
-//     login: (state, action) => {
-//       const { email, password } = action.payload;
-// const found = USERS.find(
-//   u => u.email === email && u.password === password
-// );
-// if (!found) { state.error = "Invalid email or password"; return; }
-//       state.user  = { email: found.email, name: found.name };
-//       state.error = null;
-//       localStorage.setItem("user", JSON.stringify(state.user));
-//     },
-//     logout: (state) => {
-//       state.user = null;
-//       localStorage.removeItem("user");
-//     },
-//   },
-// });
-
-// export const { login, logout } = authSlice.actions;
-// export default authSlice.reducer;
-
 import { createSlice } from "@reduxjs/toolkit";
 
 // state
