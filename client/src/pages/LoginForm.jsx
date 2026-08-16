@@ -1,16 +1,21 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { loginUser } from "../redux/feature/authService";
 
 export default function LoginForm() {
   const [form, setForm] = useState({ email: "", password: "" });
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { loading, error } = useSelector((s) => s.auth);
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    // const result = await dispatch(loginUser(form));
-    // The RTK way to check success — no try/catch in the component.
-    // if (loginUser.fulfilled.match(result)) navigate("/dashboard");
+    const result = await dispatch(loginUser(form));
+    if (loginUser.fulfilled.match(result)) navigate("/dashboard");
   };
 
   return (
@@ -38,12 +43,11 @@ export default function LoginForm() {
           required
         />
 
-        {/* {error && <p className="error">{error}</p>} */}
+        {error && <p className="error">{error}</p>}
 
-        {/* <button disabled={loading}>
+        <button disabled={loading}>
           {loading ? "Signing in…" : "Sign in"}
-        </button> */}
-        <button>Sign in</button>
+        </button>
       </form>
 
       <p className="muted">

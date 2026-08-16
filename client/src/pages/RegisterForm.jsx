@@ -1,8 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { registerUser } from "../redux/feature/authService";
 
 export default function RegisterForm() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { loading, error } = useSelector((s) => s.auth);
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -14,8 +19,8 @@ export default function RegisterForm() {
     //   return setLocalError("Password must be at least 6 characters");
     // }
 
-    // const result = await dispatch(registerUser(form));
-    // if (registerUser.fulfilled.match(result)) navigate("/dashboard");
+    const result = await dispatch(registerUser(form));
+    if (registerUser.fulfilled.match(result)) navigate("/dashboard");
   };
 
   return (
@@ -52,14 +57,11 @@ export default function RegisterForm() {
           required
         />
 
-        {/* {(localError || error) && (
-          <p className="error">{localError || error}</p>
-        )} */}
+        {error && <p className="error">{error}</p>}
 
-        {/* <button disabled={loading}>
+        <button disabled={loading}>
           {loading ? "Creating…" : "Create account"}
-        </button> */}
-        <button>Create Account</button>
+        </button>
       </form>
 
       <p className="muted">
