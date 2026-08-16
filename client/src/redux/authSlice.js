@@ -1,5 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchMe, loginUser, registerUser } from "./feature/authService";
+import {
+  fetchMe,
+  loginUser,
+  logoutUser,
+  registerUser,
+} from "./feature/authService";
 
 const initialState = {
   user: null,
@@ -37,11 +42,6 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-
-      .addCase(registerUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
@@ -66,8 +66,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.booted = true;
       })
-
-      .addCase(loginUser.fulfilled, (state) => {
+      .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.isAuthenticated = false;
       });
