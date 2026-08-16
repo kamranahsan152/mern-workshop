@@ -2,13 +2,22 @@ require("dotenv").config();
 
 const express = require("express");
 const server = express();
-const cors = require("cors");
 
 const { connectDB } = require("./config/db");
 const Note = require("./models/Note");
+const { auth } = require("./routes/user");
+const cookieParser = require("cookie-parser");
 
 server.use(express.json()); // Middleware to parse JSON request bodies
-server.use(cors());
+server.use(cookieParser()); // fills req.cookies
+server.use(
+  cors({
+    origin: process.env.CLIENT_URL, // exact, never "*"
+    credentials: true, // allow the cookie
+  }),
+);
+
+server.use(auth);
 
 server.get("/", (req, res) => {
   console.log("Name, mongodb");
