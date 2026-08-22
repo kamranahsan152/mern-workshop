@@ -8,6 +8,9 @@ const Note = require("./models/Note");
 const { auth } = require("./routes/user");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const chatRoutes = require("./routes/chat");
+const http = require("http");
+const { initSocket } = require("./socket");
 
 server.use(express.json()); // Middleware to parse JSON request bodies
 server.use(cookieParser()); // fills req.cookies
@@ -19,6 +22,7 @@ server.use(
 );
 
 server.use(auth);
+server.use("/chat", chatRoutes);
 
 server.get("/", (req, res) => {
   console.log("Name, mongodb");
@@ -78,6 +82,9 @@ server.put("/notes/:id", async (req, res) => {
   });
 });
 
-server.listen(process.env.PORT, () => {
+const httpServer = http.createServer(server);
+initSocket(httpServer);
+
+httpServer.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });
