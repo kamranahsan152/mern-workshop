@@ -12,6 +12,7 @@ import RegisterForm from "./pages/RegisterForm";
 import { useDispatch } from "react-redux";
 import { fetchMe } from "./redux/feature/authService";
 import { useEffect } from "react";
+import Chat from "./pages/Chat";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -30,6 +31,7 @@ export default function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/chat" element={<Chat />} />
           </Route>
 
           <Route element={<RoleRoute allow={["admin"]} />}>

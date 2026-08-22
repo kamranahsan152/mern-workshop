@@ -19,6 +19,7 @@ export default function Navbar() {
       </Link>
 
       <div className="nav-right">
+        <Link to="/chat">Chat</Link>
         {isAuthenticated ? (
           <>
             <span className="who">
