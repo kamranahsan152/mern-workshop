@@ -80,6 +80,11 @@ function initSocket(httpServer) {
     cors: { origin: process.env.CLIENT_URL, credentials: true },
   });
 
+  // Track how many active sockets belong to each authenticated user,
+  // so the online count is unique users, not unique tabs.
+  const connectedUsers = new Map();
+  const broadcastOnlineCount = () => io.emit("online:count", connectedUsers.size);
+
   // Reject unauthenticated sockets during the handshake.
   io.use((socket, next) => {
     try {
@@ -101,6 +106,10 @@ function initSocket(httpServer) {
     // socket.id // hshhshshs
     // All tabs/devices for this user share this room.
     socket.join(socket.user.id); // room_1
+
+    const userId = String(socket.user.id);
+    connectedUsers.set(userId, (connectedUsers.get(userId) ?? 0) + 1);
+    broadcastOnlineCount();
 
     // chat:history trigger
     socket.on("chat:history", (withUser, ack) =>
@@ -149,6 +158,13 @@ function initSocket(httpServer) {
         from: socket.user.id,
         isTyping: Boolean(isTyping),
       });
+    });
+
+    socket.on("disconnect", () => {
+      const remaining = (connectedUsers.get(userId) ?? 1) - 1;
+      if (remaining <= 0) connectedUsers.delete(userId);
+      else connectedUsers.set(userId, remaining);
+      broadcastOnlineCount();
     });
   });
 

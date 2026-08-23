@@ -8,6 +8,7 @@ import {
   chatOpened,
   messageReceived,
   connectionChanged,
+  onlineCountChanged,
   chatError,
   typingChanged,
 } from "../redux/chatSlice";
@@ -15,7 +16,7 @@ import {
 export default function Chat() {
   const dispatch = useDispatch();
   const me = useSelector((state) => state.auth.user);
-  const { users, activeUser, isConnected, error } = useSelector(
+  const { users, activeUser, isConnected, onlineUserCount, error } = useSelector(
     (state) => state.chat,
   );
 
@@ -32,6 +33,7 @@ export default function Chat() {
     socket.on("connect", () => dispatch(connectionChanged(true)));
     socket.on("disconnect", () => dispatch(connectionChanged(false)));
     socket.on("connect_error", (err) => dispatch(chatError(err.message)));
+    socket.on("online:count", (count) => dispatch(onlineCountChanged(count)));
     socket.on("chat:message", (message) =>
       dispatch(messageReceived(message, me?.id)),
     );
@@ -43,6 +45,7 @@ export default function Chat() {
       socket.off("connect");
       socket.off("disconnect");
       socket.off("connect_error");
+      socket.off("online:count");
       socket.off("chat:message");
       socket.off("chat:typing");
       socket.disconnect();
@@ -56,6 +59,9 @@ export default function Chat() {
           Chats{" "}
           <span className="muted">{isConnected ? "online" : "offline"}</span>
         </h2>
+        <p className="online-users">
+          Online Users: <strong>{onlineUserCount}</strong>
+        </p>
         {error && <p className="error">{error}</p>}
 
         <ul className="chat-users">

@@ -7,6 +7,7 @@ const chatSlice = createSlice({
     activeUser: null,
     messages: [],
     isConnected: false,
+    onlineUserCount: 0,
     error: null,
     typingByUser: {},
   },
@@ -45,6 +46,9 @@ const chatSlice = createSlice({
     connectionChanged: (state, action) => {
       state.isConnected = action.payload;
     },
+    onlineCountChanged: (state, action) => {
+      state.onlineUserCount = action.payload;
+    },
     chatError: (state, action) => {
       state.error = action.payload;
     },
@@ -58,6 +62,7 @@ export const {
   historyLoaded,
   messageReceived,
   connectionChanged,
+  onlineCountChanged,
   chatError,
   typingChanged,
 } = chatSlice.actions;

@@ -141,6 +141,13 @@ code { color: var(--cyan); }
 
 
 /* --- chat --- */
+.online-users {
+  margin: 8px 0 14px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(37, 211, 102, 0.12);
+}
+
 .chat-layout {
   display: grid;
   grid-template-columns: 260px 1fr;
