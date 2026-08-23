@@ -364,6 +364,36 @@ Then:
 8. Open a second browser/incognito window with a second account to demo
    human-to-human chat and human typing indicators.
 
+### 4.1 Windows: Docker Desktop fails with "Missing HCS services"
+
+If MongoDB is run through Docker Desktop on Windows, students may see:
+
+```text
+Missing HCS services: HNS, vmcompute, vfpext (x2)
+```
+
+This means the Windows container/virtualization features Docker needs are
+not enabled. Fix from an **Administrator** PowerShell:
+
+```powershell
+# 1. Check current state
+Get-Service hns, vmcompute
+Test-Path C:\Windows\System32\drivers\vfpext.sys
+Get-WindowsOptionalFeature -Online -FeatureName Containers,VirtualMachinePlatform,Microsoft-Hyper-V-All
+
+# 2. Enable the required Windows features
+Enable-WindowsOptionalFeature -Online -FeatureName Containers -All
+Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -All
+```
+
+Then restart the computer and reopen Docker Desktop. If the `hns` or
+`vmcompute` services still don't exist after reboot, Hyper-V itself is
+likely off — enable `Microsoft-Hyper-V-All` the same way and reboot again.
+
+This is a machine-level Windows setup issue, unrelated to this repo. If a
+student would rather skip Docker entirely, they can install MongoDB
+directly and run `mongod` as shown above instead.
+
 ## 5. Test the API without the React app
 
 OpenRouter example:
