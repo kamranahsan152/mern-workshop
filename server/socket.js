@@ -3,24 +3,75 @@ const jwt = require("jsonwebtoken");
 const { parseCookie } = require("cookie");
 const mongoose = require("mongoose");
 const Message = require("./models/Message");
-require("./models/User"); // Registers User for populate().
+const User = require("./models/User");
+const { askBot } = require("./chatbot");
 
-const isId = (value) => mongoose.isValidObjectId(value); // valide id132222 -> bad user id, 600382jaajdjdkssksjs -> valid
+const isId = (value) => mongoose.isValidObjectId(value);
 
 async function sendHistory(socket, withUser, ack) {
   try {
     if (!isId(withUser)) return ack?.({ error: "Bad user id" });
+    if (!(await User.exists({ _id: withUser })))
+      return ack?.({ error: "User not found" });
 
     const messages = await Message.between(socket.user.id, withUser).populate(
       "sender",
       "name",
     );
 
-    // message sender id, reciever
-
     ack?.({ ok: true, messages });
   } catch (err) {
     ack?.({ error: err.message });
+  }
+}
+
+async function replyAsBot(io, userId, botUser) {
+  const botId = botUser._id.toString();
+  const typingDelayMs = Math.max(
+    0,
+    Number.parseInt(process.env.CHATBOT_TYPING_DELAY_MS || "1000", 10),
+  );
+  let typingShown = false;
+  const typingTimer = setTimeout(() => {
+    typingShown = true;
+    io.to(userId).emit("chat:typing", {
+      from: botId,
+      isTyping: true,
+    });
+  }, typingDelayMs);
+
+  let reply;
+  try {
+    const history = await Message.between(userId, botId).lean();
+    const aiMessages = history.slice(-20).map((message) => ({
+      role: message.authorType === "bot" ? "assistant" : "user",
+      content: message.text,
+    }));
+    reply = await askBot(aiMessages);
+  } catch (err) {
+    console.error("Chatbot reply failed:", err.message);
+    reply = "Sorry, I couldn't reach the AI service right now.";
+  }
+
+  try {
+    const message = await Message.create({
+      text: reply,
+      sender: botId,
+      recipient: userId,
+      authorType: "bot",
+    });
+
+    await message.populate("sender", "name role");
+    const payload = message.toObject();
+    io.to(userId).emit("chat:message", payload);
+  } finally {
+    clearTimeout(typingTimer);
+    if (typingShown) {
+      io.to(userId).emit("chat:typing", {
+        from: botId,
+        isTyping: false,
+      });
+    }
   }
 }
 
@@ -60,6 +111,8 @@ function initSocket(httpServer) {
     socket.on("chat:send", async ({ to, text } = {}, ack) => {
       try {
         if (!isId(to)) return ack?.({ error: "Bad recipient" });
+        const recipient = await User.findById(to).select("name role");
+        if (!recipient) return ack?.({ error: "Recipient not found" });
 
         // message= hi
         // to = "680910222222"
@@ -72,19 +125,30 @@ function initSocket(httpServer) {
           text,
           sender: socket.user.id,
           recipient: to,
+          authorType: "user",
         });
-
-        // hi,sender: "7389303030303", recipit: "jjsjskdmddd"
 
         await message.populate("sender", "name");
 
         // Sending to both rooms updates both participants immediately.
-        // room_1 -> to: jjsjskdmddd, message hi,sender: "7389303030303", recipit: "jjsjskdmddd"
         io.to(socket.user.id).to(to).emit("chat:message", message);
         ack?.({ ok: true });
+
+        if (recipient.role === "bot")
+          await replyAsBot(io, socket.user.id, recipient);
       } catch (err) {
         ack?.({ error: err.message });
       }
+    });
+
+    socket.on("chat:typing", async ({ to, isTyping } = {}) => {
+      if (!isId(to)) return;
+      const recipient = await User.findById(to).select("role");
+      if (!recipient || recipient.role === "bot") return;
+      io.to(to).emit("chat:typing", {
+        from: socket.user.id,
+        isTyping: Boolean(isTyping),
+      });
     });
   });
 

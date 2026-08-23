@@ -9,8 +9,12 @@ export default function ChatThread() {
   const { activeUser, messages, isConnected } = useSelector(
     (state) => state.chat,
   );
+  const isTyping = useSelector(
+    (state) => Boolean(state.chat.typingByUser[activeUser?._id]),
+  );
   const [text, setText] = useState("");
   const bottomRef = useRef(null);
+  const typingTimer = useRef(null);
 
   useEffect(() => {
     if (!activeUser) return;
@@ -25,9 +29,35 @@ export default function ChatThread() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(
+    () => () => {
+      window.clearTimeout(typingTimer.current);
+      if (activeUser) {
+        socket.emit("chat:typing", { to: activeUser._id, isTyping: false });
+      }
+    },
+    [activeUser],
+  );
+
+  const onTextChange = (event) => {
+    const value = event.target.value;
+    setText(value);
+    if (activeUser.role === "bot") return;
+
+    socket.emit("chat:typing", { to: activeUser._id, isTyping: true });
+    window.clearTimeout(typingTimer.current);
+    typingTimer.current = window.setTimeout(
+      () => socket.emit("chat:typing", { to: activeUser._id, isTyping: false }),
+      700,
+    );
+  };
+
   const onSubmit = (event) => {
     event.preventDefault();
     if (!text.trim()) return;
+
+    window.clearTimeout(typingTimer.current);
+    socket.emit("chat:typing", { to: activeUser._id, isTyping: false });
 
     socket.emit(
       "chat:send",
@@ -42,8 +72,13 @@ export default function ChatThread() {
   return (
     <>
       <header className="chat-header">
-        <span className="avatar">{activeUser.name[0]?.toUpperCase()}</span>
+        <span className="avatar">
+          {activeUser.role === "bot"
+            ? "🤖"
+            : activeUser.name[0]?.toUpperCase()}
+        </span>
         <strong>{activeUser.name}</strong>
+        {isTyping && <span className="typing-label">is typing…</span>}
         <button className="ghost" onClick={() => dispatch(chatClosed())}>
           Close
         </button>
@@ -62,13 +97,18 @@ export default function ChatThread() {
             <time>{new Date(message.createdAt).toLocaleTimeString()}</time>
           </li>
         ))}
+        {isTyping && activeUser.role === "bot" && (
+          <li className="typing-bubble" aria-label="Chatbot is typing">
+            <span className="typing-dots"><i /><i /><i /></span>
+          </li>
+        )}
         <div ref={bottomRef} />
       </ul>
 
       <form className="chat-form" onSubmit={onSubmit}>
         <input
           value={text}
-          onChange={(event) => setText(event.target.value)}
+          onChange={onTextChange}
           placeholder={`Message ${activeUser.name}…`}
           aria-label="Message"
         />

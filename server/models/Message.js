@@ -15,6 +15,14 @@ const messageSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+    // Makes the bot/user distinction explicit while keeping one message
+    // collection and one conversation query for both kinds of chat.
+    authorType: {
+      type: String,
+      enum: ["user", "bot"],
+      default: "user",
+      index: true,
+    },
   },
   { timestamps: true },
 );

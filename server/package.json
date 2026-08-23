@@ -6,7 +6,7 @@
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "seed:admin": "node scripts/seedAdmin.js",
-    "seed:chatbot": "node scripts/seedChatBot.js"
+    "seed:chatbot": "node scripts/seedChatbot.js"
   },
   "keywords": [],
   "author": "",

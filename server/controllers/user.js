@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const { signToken, cookieOptions, publicUser } = require("../utils/helper");
+const { ensureBotUser } = require("../chatbot");
 
 const register = async (req, res) => {
   try {
@@ -14,6 +15,8 @@ const register = async (req, res) => {
       email,
       password: hash,
     });
+
+    await ensureBotUser();
 
     res
       .cookie("token", signToken(user), cookieOptions)
@@ -37,11 +40,18 @@ const login = async (req, res) => {
         message: "User is not registered, please register yourself",
       });
     }
-    const campare = await bcrypt.campare(password, user.password);
+    if (user.role === "bot") {
+      return res.status(403).json({ msg: "The chatbot account cannot log in" });
+    }
+    const campare = await bcrypt.compare(password, user.password);
 
     if (!campare) {
       return res.status(400).json({ msg: "Invalid credentials" });
     }
+
+    // Idempotent: it creates the one shared chatbot if the seed script has
+    // not been run yet, so every newly logged-in user can see it.
+    await ensureBotUser();
 
     res
       .cookie("token", signToken(user), cookieOptions)

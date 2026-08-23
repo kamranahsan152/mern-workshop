@@ -9,6 +9,7 @@ import {
   messageReceived,
   connectionChanged,
   chatError,
+  typingChanged,
 } from "../redux/chatSlice";
 
 export default function Chat() {
@@ -34,6 +35,7 @@ export default function Chat() {
     socket.on("chat:message", (message) =>
       dispatch(messageReceived(message, me?.id)),
     );
+    socket.on("chat:typing", (event) => dispatch(typingChanged(event)));
 
     socket.connect();
 
@@ -42,6 +44,7 @@ export default function Chat() {
       socket.off("disconnect");
       socket.off("connect_error");
       socket.off("chat:message");
+      socket.off("chat:typing");
       socket.disconnect();
     };
   }, [dispatch, me?.id]);
@@ -54,9 +57,11 @@ export default function Chat() {
           <span className="muted">{isConnected ? "online" : "offline"}</span>
         </h2>
         {error && <p className="error">{error}</p>}
-        {users.length === 0 && <p className="muted">No other users yet.</p>}
 
         <ul className="chat-users">
+          {users.length === 0 && (
+            <p className="muted">No other users yet. Run the chatbot seed.</p>
+          )}
           {users.map((user) => (
             <li key={user._id}>
               <button
@@ -67,7 +72,9 @@ export default function Chat() {
                 }
                 onClick={() => dispatch(chatOpened(user))}
               >
-                <span className="avatar">{user.name[0]?.toUpperCase()}</span>
+                <span className="avatar">
+                  {user.role === "bot" ? "🤖" : user.name[0]?.toUpperCase()}
+                </span>
                 <span>
                   <strong>{user.name}</strong>
                   <small className="muted">{user.email}</small>

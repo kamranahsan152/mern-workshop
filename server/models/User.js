@@ -10,10 +10,11 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+    // Bot users never log in, so they do not need a password.
     password: {
       type: String,
       required: function passwordRequired() {
-        return this.role !== "bot"; // check if role = "bot" set false, true => user, admin role case
+        return this.role !== "bot";
       },
     },
     role: {

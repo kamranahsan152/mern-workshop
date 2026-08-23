@@ -206,6 +206,12 @@ code { color: var(--cyan); }
   margin-left: auto;
 }
 
+.typing-label {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+}
+
 .chat-messages {
   list-style: none;
   margin: 0;
@@ -237,6 +243,28 @@ code { color: var(--cyan); }
 .chat-messages time {
   font-size: 11px;
   opacity: 0.7;
+}
+
+.chat-messages li.typing-bubble {
+  display: flex;
+  width: fit-content;
+  padding: 10px 12px;
+}
+
+.typing-dots { display: flex; gap: 4px; }
+.typing-dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+  animation: typing-bounce 1s infinite ease-in-out;
+}
+.typing-dots i:nth-child(2) { animation-delay: 0.15s; }
+.typing-dots i:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-4px); }
 }
 
 .chat-form {

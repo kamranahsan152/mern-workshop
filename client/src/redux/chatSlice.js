@@ -8,6 +8,7 @@ const chatSlice = createSlice({
     messages: [],
     isConnected: false,
     error: null,
+    typingByUser: {},
   },
   reducers: {
     usersLoaded: (state, action) => {
@@ -20,6 +21,10 @@ const chatSlice = createSlice({
     chatClosed: (state) => {
       state.activeUser = null;
       state.messages = [];
+    },
+    typingChanged: (state, action) => {
+      const { from, isTyping } = action.payload;
+      if (from) state.typingByUser[from] = isTyping;
     },
     historyLoaded: (state, action) => {
       state.messages = action.payload;
@@ -54,6 +59,7 @@ export const {
   messageReceived,
   connectionChanged,
   chatError,
+  typingChanged,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

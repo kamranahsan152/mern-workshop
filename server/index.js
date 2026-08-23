@@ -11,6 +11,7 @@ const cors = require("cors");
 const chatRoutes = require("./routes/chat");
 const http = require("http");
 const { initSocket } = require("./socket");
+const { ensureBotUser } = require("./chatbot");
 
 server.use(express.json()); // Middleware to parse JSON request bodies
 server.use(cookieParser()); // fills req.cookies
@@ -29,7 +30,12 @@ server.get("/", (req, res) => {
   res.send("Hello, World!");
 });
 
-connectDB();
+connectDB()
+  .then(() => ensureBotUser())
+  .catch((error) => {
+    console.error("Database startup failed:", error.message);
+    process.exit(1);
+  });
 
 server.get("/notes", async (req, res) => {
   const notes = await Note.find();
