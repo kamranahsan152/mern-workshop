@@ -10,8 +10,17 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
-    password: { type: String, required: true },
-    role: { type: String, enum: ["user", "admin"], default: "user" }, // role = "user" // role="admin"
+    password: {
+      type: String,
+      required: function passwordRequired() {
+        return this.role !== "bot"; // check if role = "bot" set false, true => user, admin role case
+      },
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin", "bot"],
+      default: "user",
+    },
   },
   { timestamps: true },
 );
