@@ -21,7 +21,7 @@ export default function PhotoGrid() {
     return <p className="muted">Loading your collage…</p>;
   }
 
-  if (photos.length === 0) {
+  if (photos?.length === 0) {
     return (
       <div className="empty">
         <div className="empty-icon">🖼</div>
@@ -33,11 +33,11 @@ export default function PhotoGrid() {
   return (
     <section>
       <div className="panel-head">
-        <h2>Your collage ({photos.length})</h2>
+        <h2>Your collage ({photos?.length || 0})</h2>
       </div>
 
       <div className="grid">
-        {photos.map((photo, index) => (
+        {photos?.map((photo, index) => (
           <figure
             key={photo.filename}
             // Every 5th photo spans two columns and two rows. That single trick
