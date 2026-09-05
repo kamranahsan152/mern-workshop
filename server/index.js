@@ -26,7 +26,7 @@ server.use(auth);
 server.use("/chat", chatRoutes);
 
 server.use("/health", (req, res) => {
-  res.status(200).json({ success: true, message: "Server is healthy" });
+  res.status(200).json({ success: true, message: "Server is healthy api" });
 });
 
 server.get("/", (req, res) => {
