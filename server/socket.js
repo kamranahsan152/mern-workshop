@@ -1,12 +1,23 @@
 const { Server } = require("socket.io");
 const jwt = require("jsonwebtoken");
-const { parseCookie } = require("cookie");
 const mongoose = require("mongoose");
 const Message = require("./models/Message");
 const User = require("./models/User");
 const { askBot } = require("./chatbot");
 
 const isId = (value) => mongoose.isValidObjectId(value);
+
+const parseCookie = (header = "") =>
+  Object.fromEntries(
+    header
+      .split(";")
+      .map((part) => part.split("="))
+      .filter(([name]) => name?.trim())
+      .map(([name, ...rest]) => [
+        name.trim(),
+        decodeURIComponent(rest.join("=").trim()),
+      ])
+  );
 
 async function sendHistory(socket, withUser, ack) {
   try {
@@ -91,7 +102,7 @@ function initSocket(httpServer) {
       // cookies ejsodododododododododod
       // get token
       /// ejsodododododododododod
-      const { token } = parseCookie(socket.handshake.headers.cookie ?? "");
+      const { token } = parseCookie(socket.handshake.headers.cookie);
       if (!token) return next(new Error("No token"));
 
       socket.user = jwt.verify(token, process.env.JWT_SECRET); // id;
