@@ -22,6 +22,17 @@ server.use(
   }),
 );
 
+// Every route below needs the DB; on serverless the connection may not be up
+// yet when a request arrives, so wait for it here instead of at startup.
+server.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    res.status(503).json({ success: false, msg: "Database unavailable" });
+  }
+});
+
 server.use(auth);
 server.use("/chat", chatRoutes);
 
@@ -38,7 +49,6 @@ connectDB()
   .then(() => ensureBotUser())
   .catch((error) => {
     console.error("Database startup failed:", error.message);
-    process.exit(1);
   });
 
 server.get("/notes", async (req, res) => {

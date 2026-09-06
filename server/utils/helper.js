@@ -3,8 +3,6 @@ const jwt = require("jsonwebtoken");
 //security
 const isProd = process.env.NODE_ENV === "production";
 
-// Client and API live on different domains in production, so the cookie must
-// be SameSite=None; browsers only accept that when Secure is also set.
 const cookieOptions = {
   httpOnly: true,
   secure: isProd,
