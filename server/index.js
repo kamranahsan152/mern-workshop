@@ -105,13 +105,8 @@ server.put("/notes/:id", async (req, res) => {
 const httpServer = http.createServer(server);
 initSocket(httpServer);
 
-// Vercel imports this module and invokes the export per request; it never
-// runs a long-lived listener. Locally we still need one.
-if (!process.env.VERCEL) {
-  const PORT = process.env.PORT || 5000;
-  httpServer.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-}
+httpServer.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
 module.exports = server;
